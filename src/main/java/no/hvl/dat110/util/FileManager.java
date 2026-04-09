@@ -134,25 +134,27 @@ public class FileManager {
 	 * @return list of active nodes having the replicas of this file
 	 * @throws RemoteException 
 	 */
-	public Set<Message> requestActiveNodesForFile(String filename) throws RemoteException {
+    public Set<Message> requestActiveNodesForFile(String filename) throws RemoteException {
 
-		this.filename = filename;
-		activeNodesforFile = new HashSet<Message>(); 
+        this.filename = filename;
+        activeNodesforFile = new HashSet<Message>();
 
-		// Task: Given a filename, find all the peers that hold a copy of this file
-		
-		// generate the N replicas from the filename by calling createReplicaFiles()
-		
-		// iterate over the replicas of the file
-		
-		// for each replica, do findSuccessor(replica) that returns successor s.
-		
-		// get the metadata (Message) of the replica from the successor (i.e., active peer) of the file
-		
-		// save the metadata in the set activeNodesforFile.
-		
-		return activeNodesforFile;
-	}
+        // Task: Given a filename, find all the peers that hold a copy of this file
+
+        // generate the N replicas from the filename by calling createReplicaFiles()
+        createReplicaFiles();
+        // iterate over the replicas of the file
+        for(BigInteger i : replicafiles) {
+            // for each replica, do findSuccessor(replica) that returns successor s.
+            NodeInterface s = chordnode.findSuccessor(i);
+            // get the metadata (Message) of the replica from the successor (i.e., active peer) of the file
+            Message m = s.getFilesMetadata().get(i);
+            // save the metadata in the set activeNodesforFile.
+            activeNodesforFile.add(m);
+        }
+
+        return activeNodesforFile;
+    }
 	
 	/**
 	 * Find the primary server - Remote-Write Protocol
