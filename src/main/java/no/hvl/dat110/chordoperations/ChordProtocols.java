@@ -184,7 +184,10 @@ public class ChordProtocols {
 
 			BigInteger k = null;
 			for (int i = 0; i < bitSize; i++) {
-				k = chordnode.getNodeID().add(BigInteger.valueOf((long)Math.pow(2, i))).mod(addressSize);
+				k = chordnode.getNodeID().add(BigInteger.valueOf(2).pow(i)).mod(addressSize);
+                NodeInterface succNode = chordnode.findSuccessor(k);
+                
+                if (succNode != null) fingerTable.add(succNode);
 			}
 
 		} catch (RemoteException e) {
