@@ -100,11 +100,11 @@ public class FileManager {
                 if (isPrimary) {
                     succOfFileID.addKey(replicaID);
                     succOfFileID.saveFileContent(filename, replicaID, bytesOfFile, true);
-                    counter++;
                 } else {
                     succOfFileID.addKey(replicaID);
                     succOfFileID.saveFileContent(filename, replicaID, bytesOfFile, false);
                 }
+                counter++;
             }
         }
         
@@ -160,20 +160,20 @@ public class FileManager {
 	 * Find the primary server - Remote-Write Protocol
 	 * @return 
 	 */
-	public NodeInterface findPrimaryOfItem() {
+    public NodeInterface findPrimaryOfItem() {
 
-		// Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
-		
-		// iterate over the activeNodesforFile
-		
-		// for each active peer (saved as Message)
-		
-		// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
-		
-		// return the primary when found (i.e., use Util.getProcessStub to get the stub and return it)
-		
-		return null; 
-	}
+        // Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
+
+        // iterate over the activeNodesforFile
+        for(Message m : activeNodesforFile) {
+            // for each active peer (saved as Message)
+            // use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
+            // return the primary when found (i.e., use Util.getProcessStub to get the stub and return it)
+            if(m.isPrimaryServer()) return Util.getProcessStub(m.getNodeName(), m.getPort());
+        }
+
+        return null;
+    }
 	
     /**
      * Read the content of a file and return the bytes
