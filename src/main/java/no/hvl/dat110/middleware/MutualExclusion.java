@@ -62,22 +62,23 @@ public class MutualExclusion {
 		// wants to access resource - set the appropriate lock variable
         WANTS_TO_ENTER_CS = true;
         
-        
-        
-		// start MutualExclusion algorithm
         boolean permission = false;
-        // first, call removeDuplicatePeersBeforeVoting. A peer can hold/contain 2 replicas of a file. This peer will appear twice
-        List<Message> uniqueNodes = removeDuplicatePeersBeforeVoting();
+    
+        if (!CS_BUSY) {
+            // start MutualExclusion algorithm
+            // first, call removeDuplicatePeersBeforeVoting. A peer can hold/contain 2 replicas of a file. This peer will appear twice
+            List<Message> uniqueNodes = removeDuplicatePeersBeforeVoting();
 
-        // multicast the message to activenodes (hint: use multicastMessage)
-        multicastMessage(message, uniqueNodes);
-        
-        // check that all replicas have replied (permission) - areAllMessagesReturned(int numvoters)?
-        if (areAllMessagesReturned(uniqueNodes.size())) {
-            acquireLock();
-            node.broadcastUpdatetoPeers(updates);
-            mutexqueue.clear();
-            permission = true;
+            // multicast the message to activenodes (hint: use multicastMessage)
+            multicastMessage(message, uniqueNodes);
+            // check that all replicas have replied (permission) - areAllMessagesReturned(int numvoters)?
+            if (areAllMessagesReturned(uniqueNodes.size())) {
+                acquireLock();
+                node.broadcastUpdatetoPeers(updates);
+                mutexqueue.clear();
+                permission = true;
+            }
+
             releaseLocks();
         }
         // if yes, acquireLock
@@ -85,9 +86,7 @@ public class MutualExclusion {
         // send the updates to all replicas by calling node.broadcastUpdatetoPeers
 
         // clear the mutexqueue
-        
 		// return permission
-		
 		return permission;
 	}
 	
@@ -182,7 +181,7 @@ public class MutualExclusion {
 				
 				// check the clock of the sending process (note that the correct clock is in the received message)
 				int senderClock = message.getClock();
-                int thisClock = clock.getClock();
+                int thisClock = node.getMessage().getClock();
                 
 				// own clock of the receiver (note that the correct clock is in the node's message)
                 if (senderClock < thisClock) {
@@ -213,9 +212,10 @@ public class MutualExclusion {
 	}
 	
 	public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
-		
 		// add message to queueack
-        queueack.add(message);
+        if (message.getNodeName().equals(node.getNodeName())) {
+            queueack.add(message);
+        }
 		
 	}
 	
@@ -243,7 +243,6 @@ public class MutualExclusion {
 	private boolean areAllMessagesReturned(int numvoters) throws RemoteException {
 		logger.info(node.getNodeName()+": size of queueack = "+queueack.size());
         
-       
 		// check if the size of the queueack is the same as the numvoters
         boolean allReturned = queueack.size() == numvoters;
         
