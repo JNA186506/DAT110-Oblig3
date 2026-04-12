@@ -97,13 +97,9 @@ public class FileManager {
             boolean isNotNull = succOfFileID != null;
             
             if (isNotNull) {
-                if (isPrimary) {
-                    succOfFileID.addKey(replicaID);
-                    succOfFileID.saveFileContent(filename, replicaID, bytesOfFile, true);
-                } else {
-                    succOfFileID.addKey(replicaID);
-                    succOfFileID.saveFileContent(filename, replicaID, bytesOfFile, false);
-                }
+                succOfFileID.addKey(replicaID);
+                succOfFileID.saveFileContent(filename, replicaID, bytesOfFile, isPrimary);
+                
                 counter++;
             }
         }
